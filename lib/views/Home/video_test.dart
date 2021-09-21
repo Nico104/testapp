@@ -29,35 +29,35 @@ class _ChapterVideoPlayerState extends State<ChapterVideoPlayer> {
       title: 'Video Demo',
       home: Scaffold(
         body: Padding(
-          padding: const EdgeInsets.all(200),
+          padding: const EdgeInsets.all(100),
           child: Center(
             child: _controller!.value.isInitialized
-                ? Stack(
-                  alignment: Alignment.bottomCenter,
-                  children: [
-                    AspectRatio(
-                      aspectRatio: _controller!.value.aspectRatio,
-                      child: VideoPlayer(_controller!),
-                    ),
-                    VideoProgressIndicator(_controller!, colors: const VideoProgressColors(playedColor: Colors.red, bufferedColor: Colors.purple, backgroundColor: Colors.green),
-                          allowScrubbing: true),
-                    FloatingActionButton(
-                      onPressed: () {
-                        setState(() {
-                          /*_controller!.value.isPlaying
-                              ? _controller!.pause()
-                              : _controller!.play();
-                          */
-                          _controller!.value.playbackSpeed == 1
-                              ? _controller!.setPlaybackSpeed(4)
-                              : _controller!.setPlaybackSpeed(1);
-                        });
-                      },
-                      child: Icon(
-                        _controller!.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                ? AspectRatio(
+                  aspectRatio: _controller!.value.aspectRatio,
+                  child: Stack(
+                    alignment: Alignment.bottomCenter,
+                    children: [
+                      VideoPlayer(_controller!),
+                      VideoProgressIndicator(_controller!, colors: const VideoProgressColors(playedColor: Colors.red, bufferedColor: Colors.purple, backgroundColor: Colors.green),
+                      allowScrubbing: true),
+                      FloatingActionButton(
+                        onPressed: () {
+                          setState(() {
+                            /*_controller!.value.isPlaying
+                                ? _controller!.pause()
+                                : _controller!.play();
+                            */
+                            _controller!.value.playbackSpeed == 1
+                                ? _controller!.setPlaybackSpeed(4)
+                                : _controller!.setPlaybackSpeed(1);
+                          });
+                        },
+                        child: Icon(
+                          _controller!.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 )
                 : Container(),
           ),
