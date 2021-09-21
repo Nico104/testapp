@@ -39,7 +39,7 @@ class _ChapterVideoPlayerState extends State<ChapterVideoPlayer> {
                       aspectRatio: _controller!.value.aspectRatio,
                       child: VideoPlayer(_controller!),
                     ),
-                    VideoProgressIndicator(_controller!, colors: VideoProgressColors(playedColor: Colors.red, bufferedColor: Colors.purple, backgroundColor: Colors.green),
+                    VideoProgressIndicator(_controller!, colors: const VideoProgressColors(playedColor: Colors.red, bufferedColor: Colors.purple, backgroundColor: Colors.green),
                           allowScrubbing: true),
                     FloatingActionButton(
                       onPressed: () {
