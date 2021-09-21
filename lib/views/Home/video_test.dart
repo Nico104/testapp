@@ -25,6 +25,7 @@ class _ChapterVideoPlayerState extends State<ChapterVideoPlayer> {
 
   @override
   Widget build(BuildContext context) {
+    double _currentSliderValue = 0.5;
     return MaterialApp(
       title: 'Video Demo',
       home: Scaffold(
@@ -38,23 +39,38 @@ class _ChapterVideoPlayerState extends State<ChapterVideoPlayer> {
                     alignment: Alignment.bottomCenter,
                     children: [
                       VideoPlayer(_controller!),
-                      VideoProgressIndicator(_controller!, colors: const VideoProgressColors(playedColor: Colors.red, bufferedColor: Colors.purple, backgroundColor: Colors.green),
-                      allowScrubbing: true),
-                      FloatingActionButton(
-                        onPressed: () {
-                          setState(() {
-                            /*_controller!.value.isPlaying
-                                ? _controller!.pause()
-                                : _controller!.play();
-                            */
-                            _controller!.value.playbackSpeed == 1
-                                ? _controller!.setPlaybackSpeed(4)
-                                : _controller!.setPlaybackSpeed(1);
-                          });
-                        },
-                        child: Icon(
-                          _controller!.value.isPlaying ? Icons.pause : Icons.play_arrow,
-                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Slider(
+                            value: _currentSliderValue,
+                            min: 0,
+                            max: 100,
+                            divisions: 5,
+                            label: _currentSliderValue.round().toString(),
+                            onChanged: (double value) {
+                              setState(() {
+                                _currentSliderValue = value;
+                              });
+                            },
+                          ),
+                          VideoProgressIndicator(_controller!, colors: const VideoProgressColors(playedColor: Colors.red, bufferedColor: Colors.purple, backgroundColor: Colors.green),
+                          allowScrubbing: true),
+                           FloatingActionButton(
+                            onPressed: () {
+                              setState(() {
+                                _controller!.value.playbackSpeed == 1
+                                    ? _controller!.setPlaybackSpeed(4)
+                                    : _controller!.setPlaybackSpeed(1);
+                              });
+                            },
+                            child: Icon(
+                              _controller!.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -65,13 +81,10 @@ class _ChapterVideoPlayerState extends State<ChapterVideoPlayer> {
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             setState(() {
-              /*_controller!.value.isPlaying
+              _controller!.value.isPlaying
                   ? _controller!.pause()
                   : _controller!.play();
-              */
-              _controller!.value.playbackSpeed == 1
-                  ? _controller!.setPlaybackSpeed(4)
-                  : _controller!.setPlaybackSpeed(1);
+              
             });
           },
           child: Icon(
