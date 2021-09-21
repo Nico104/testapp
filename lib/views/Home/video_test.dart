@@ -23,9 +23,10 @@ class _ChapterVideoPlayerState extends State<ChapterVideoPlayer> {
       _controller!.play();
   }
 
+  double _currentSliderValue = 20;
+
   @override
   Widget build(BuildContext context) {
-    double _currentSliderValue = 0.5;
     return MaterialApp(
       title: 'Video Demo',
       home: Scaffold(
@@ -44,17 +45,32 @@ class _ChapterVideoPlayerState extends State<ChapterVideoPlayer> {
                         mainAxisSize: MainAxisSize.max,
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          Slider(
-                            value: _currentSliderValue,
-                            min: 0,
-                            max: 100,
-                            divisions: 5,
-                            label: _currentSliderValue.round().toString(),
-                            onChanged: (double value) {
-                              setState(() {
-                                _currentSliderValue = value;
-                              });
-                            },
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              RotatedBox(
+                                quarterTurns: 3,
+                                child: SliderTheme(
+                                  data: const SliderThemeData(
+                                    //thumbColor: Colors.green,
+                                    thumbShape: RoundSliderThumbShape(enabledThumbRadius: 7),
+                                    //showValueIndicator: ShowValueIndicator.never,
+                                    ),
+                                  child: Slider(
+                                    value: _controller!.value.volume * 100,
+                                    min: 0,
+                                    max: 100,
+                                    //divisions: 20,
+                                    //label: (_controller!.value.volume * 100).round().toString(),
+                                    onChanged: (double value) {
+                                      setState(() {
+                                        _controller!.setVolume(value / 100);
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                           VideoProgressIndicator(_controller!, colors: const VideoProgressColors(playedColor: Colors.red, bufferedColor: Colors.purple, backgroundColor: Colors.green),
                           allowScrubbing: true),
