@@ -14,12 +14,16 @@ class _ChapterVideoPlayerState extends State<ChapterVideoPlayer> {
   @override
   void initState() {
     super.initState();
+    print("ndn1");
     _controller = VideoPlayerController.network(
-        'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_20mb.mp4')
+        //'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_20mb.mp4')
+        'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4')
       ..initialize().then((_) {
+        print("initialized video");
         // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
         setState(() {});
       });
+      print("ndn");
       _controller!.play();
   }
 
@@ -91,7 +95,8 @@ class _ChapterVideoPlayerState extends State<ChapterVideoPlayer> {
                     ],
                   ),
                 )
-                : Container(),
+                //: Container(child: const Text("controller not initialized"),),
+                : const CircularProgressIndicator(),
           ),
         ),
         floatingActionButton: FloatingActionButton(
