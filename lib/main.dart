@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:testsite/views/auth/login_widget.dart';
 import 'package:testsite/views/responsivetest_widget.dart';
+import 'package:testsite/views/show_user_data_widget.dart';
 import 'package:testsite/views/video_test.dart';
 import 'package:testsite/views/auth/signup_widget.dart';
 import 'package:testsite/views/welcome_widget.dart';
@@ -19,6 +20,7 @@ class TestApp extends StatelessWidget {
         '/video': (context) => ChapterVideoPlayer(),
         '/welcome': (context) => WelcomeScreen(),
         '/responsive': (context) => ResponsiveTestScreen(),
+        '/isauth': (context) => ShowUserData(),
       },
     );
   }
