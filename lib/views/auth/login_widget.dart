@@ -1,5 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:testsite/utils/animated_progress_indicator_widget.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatelessWidget {
   @override
@@ -31,13 +35,10 @@ class _LoginFormState extends State<LoginForm> {
 
   void _updateFormProgress() {
     var progress = 0.0;
-    final controllers = [
-      _usernameTextController,
-      _passwordTextController
-    ];
+    final controllers = [_usernameTextController, _passwordTextController];
 
     for (final controller in controllers) {
-      if(controller.value.text.isNotEmpty) {
+      if (controller.value.text.isNotEmpty) {
         progress += 1 / controllers.length;
       }
     }
@@ -51,6 +52,25 @@ class _LoginFormState extends State<LoginForm> {
     Navigator.of(context).pushNamed('/welcome');
   }
 
+  Future<void> _login(String username, String password) async {
+    var url = Uri.parse('http://localhost:3000/login');
+    var response = await http
+        .post(url, body: {'username': '$username', 'password': '$password'});
+    print('Response status: ${response.statusCode}');
+    print('Response body: ${response.body}');
+
+    if (response.statusCode == 201) {
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+          'access_token', json.decode(response.body)["access_token"]);
+      print("Acess Token: ${prefs.getString('access_token')}");
+
+      Navigator.of(context).pushNamed('/welcome');
+    }
+
+    //Navigator.of(context).pushNamed('/welcome');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -59,10 +79,7 @@ class _LoginFormState extends State<LoginForm> {
         mainAxisSize: MainAxisSize.min,
         children: [
           AnimatedProgressIndicator(value: _formProgress),
-          Text('Login', style: Theme
-              .of(context)
-              .textTheme
-              .headline4),
+          Text('Login', style: Theme.of(context).textTheme.headline4),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextFormField(
@@ -79,14 +96,23 @@ class _LoginFormState extends State<LoginForm> {
           ),
           TextButton(
             style: ButtonStyle(
-              foregroundColor: MaterialStateProperty.resolveWith((Set<MaterialState> states) {
-                return states.contains(MaterialState.disabled) ? null : Colors.white;
+              foregroundColor: MaterialStateProperty.resolveWith(
+                  (Set<MaterialState> states) {
+                return states.contains(MaterialState.disabled)
+                    ? null
+                    : Colors.white;
               }),
-              backgroundColor: MaterialStateProperty.resolveWith((Set<MaterialState> states) {
-                return states.contains(MaterialState.disabled) ? null : Colors.blue;
+              backgroundColor: MaterialStateProperty.resolveWith(
+                  (Set<MaterialState> states) {
+                return states.contains(MaterialState.disabled)
+                    ? null
+                    : Colors.blue;
               }),
             ),
-            onPressed: _formProgress == 1 ? _showWelcomeScreen : null,
+            onPressed: _formProgress == 1
+                ? () => _login(
+                    _usernameTextController.text, _passwordTextController.text)
+                : null,
             child: const Text('Login'),
           ),
         ],
