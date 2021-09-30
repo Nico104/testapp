@@ -12,7 +12,6 @@ class ShowUserData extends StatelessWidget {
     return FutureBuilder(
         future: isAuthenticated(),
         builder: (BuildContext context, AsyncSnapshot snapshot) {
-          print("State :" + (snapshot.data == 200).toString());
           if (snapshot.data == 200) {
             return WelcomeScreen();
           } else {
