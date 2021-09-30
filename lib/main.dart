@@ -8,8 +8,8 @@ class SignUpApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       routes: {
-        //'/': (context) => SignUpScreen(),
-        '/': (context) => ChapterVideoPlayer(),
+        '/': (context) => SignUpScreen(),
+        '/video': (context) => ChapterVideoPlayer(),
         '/welcome': (context) => WelcomeScreen(),
       },
     );
