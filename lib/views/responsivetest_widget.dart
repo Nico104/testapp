@@ -5,13 +5,17 @@ import 'package:testsite/utils/responsive_builder_widget.dart';
 class ResponsiveTestScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[200],
-      body: Center(
-        child: SizedBox(
-          width: 400,
-          child: Card(
-            child: ResponsiveTestForm(),
+    return ResponsiveWidget(
+      smallScreen: const Text("small"),
+      mediumScreen: const Text("medium"),
+      largeScreen: Scaffold(
+        backgroundColor: Colors.grey[200],
+        body: Center(
+          child: SizedBox(
+            width: 400,
+            child: Card(
+              child: ResponsiveTestForm(),
+            ),
           ),
         ),
       ),
@@ -56,10 +60,7 @@ class _ResponsiveTestFormState extends State<ResponsiveTestForm> {
 
   @override
   Widget build(BuildContext context) {
-    return ResponsiveWidget(
-      smallScreen: const Text("small"),
-      mediumScreen: const Text("medium"),
-      largeScreen: Form(
+    return Form(
         onChanged: _updateFormProgress, // NEW
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -104,7 +105,7 @@ class _ResponsiveTestFormState extends State<ResponsiveTestForm> {
             ),
           ],
         ),
-      ),
+     
     );
   }
 }

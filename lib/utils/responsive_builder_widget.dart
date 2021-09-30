@@ -33,9 +33,9 @@ class ResponsiveWidget extends StatelessWidget {
         if (constraints.maxWidth > 1200) {
           return largeScreen;
         } else if (constraints.maxWidth <= 1200 && constraints.maxWidth >= 800) {
-          return mediumScreen ?? largeScreen;
+          return mediumScreen;
         } else {
-          return smallScreen ?? largeScreen;
+          return smallScreen;
         }
       },
     );
