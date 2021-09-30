@@ -66,7 +66,7 @@ class _ResponsiveTestFormState extends State<ResponsiveTestForm> {
           mainAxisSize: MainAxisSize.min,
           children: [
             AnimatedProgressIndicator(value: _formProgress),
-            Text('Sign up', style: Theme
+            Text('Reponsive Sign up', style: Theme
                 .of(context)
                 .textTheme
                 .headline4),
