@@ -5,6 +5,8 @@ import 'package:testsite/views/auth/login_widget.dart';
 import 'package:testsite/views/welcome_widget.dart';
 
 class ShowUserData extends StatelessWidget {
+  const ShowUserData({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(

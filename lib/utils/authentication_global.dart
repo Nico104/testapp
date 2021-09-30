@@ -6,8 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 Future<int> isAuthenticated() async {
   var url = Uri.parse('http://localhost:3000/protected');
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  String? token = prefs.getString('access_token');
+  String? token = await getToken();
 
   final response = await http.get(url, headers: {
     'Content-Type': 'application/json',
@@ -23,4 +22,9 @@ Future<int> isAuthenticated() async {
   }
 
   return response.statusCode;
+}
+
+Future<String?> getToken() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  return prefs.getString('access_token');
 }
