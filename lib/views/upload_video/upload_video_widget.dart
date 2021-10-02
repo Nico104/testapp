@@ -16,11 +16,11 @@ class UploadVideoScreen extends StatelessWidget {
           width: 400,
           height: 600,
           child: Card(
-          elevation: 20,
+            elevation: 20,
             shape: RoundedRectangleBorder(
-                side: const BorderSide(color: Colors.white70, width: 1),
-                borderRadius: BorderRadius.circular(15.0),
-              ),
+              side: const BorderSide(color: Colors.white70, width: 1),
+              borderRadius: BorderRadius.circular(15.0),
+            ),
             child: const UploadVideoForm(),
           ),
         ),
@@ -47,53 +47,54 @@ class _UploadVideoFormState extends State<UploadVideoForm> {
           height: 100,
           minWidth: 200,
           child: OutlinedButton(
-                style: ButtonStyle(
-                  side: MaterialStateProperty.resolveWith((states) {
-                      Color _borderColor;
-                      if (states.contains(MaterialState.disabled)) {
-                        _borderColor = Colors.greenAccent;
-                      } else if (states.contains(MaterialState.pressed)) {
-                        _borderColor = Colors.yellow;
-                      } else {
-                        _borderColor = Colors.pinkAccent;
-                      }
-        
-                      return BorderSide(color: _borderColor, width: 3);
-                    }),
-                  shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0))),
-                ),
-                // onPressed: () => Navigator.push(
-                //         context,
-                //         MaterialPageRoute(builder: (context) => const UploadVideoDataScreen()),
-                //       ),
-                onPressed: () => _uploadVideo(),
-                child: const Text("Choose Video"), 
+            style: ButtonStyle(
+              side: MaterialStateProperty.resolveWith((states) {
+                Color _borderColor;
+                if (states.contains(MaterialState.disabled)) {
+                  _borderColor = Colors.greenAccent;
+                } else if (states.contains(MaterialState.pressed)) {
+                  _borderColor = Colors.yellow;
+                } else {
+                  _borderColor = Colors.pinkAccent;
+                }
+
+                return BorderSide(color: _borderColor, width: 3);
+              }),
+              shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30.0))),
+            ),
+            // onPressed: () => Navigator.push(
+            //         context,
+            //         MaterialPageRoute(builder: (context) => const UploadVideoDataScreen()),
+            //       ),
+            onPressed: () => _uploadVideo(),
+            child: const Text("Choose Video"),
           ),
         ),
       ],
     );
   }
-  
+
   Future<void> _uploadVideo() async {
+    final result = await FilePicker.platform
+        .pickFiles(type: FileType.video, allowMultiple: false);
 
-    final result = await FilePicker.platform.pickFiles(type: FileType.any, allowMultiple: false);
+    var fileBytes = result!.files.first.bytes;
+    var fileName = result.files.first.name;
 
-    if (result!.files.first != null){
-      var fileBytes = result.files.first.bytes;
-      var fileName = result.files.first.name;
+    // upload file
+    // await FirebaseStorage.instance.ref('uploads/$fileName').putData(fileBytes);
 
-      // upload file
-      // await FirebaseStorage.instance.ref('uploads/$fileName').putData(fileBytes);
-
-      print(String.fromCharCodes(fileBytes!));
-      print("FileName: " + fileName);
-      Navigator.push(context,MaterialPageRoute(builder: (context) => const UploadVideoDataScreen()),);
-    }
+    // print(String.fromCharCodes(fileBytes!));
+    print("FileName: " + fileName);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => UploadVideoDataScreen(
+                videoBytes: fileBytes!,
+              )),
+    );
 
     print("weiter");
-
   }
-
-
-
 }

@@ -3,22 +3,26 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:image/image.dart' as image;
 import 'package:testsite/utils/animated_progress_indicator_widget.dart';
-import 'package:http/http.dart' as http;
+import 'package:testsite/utils/process_and_send_widget.dart';
 
 class UploadVideoDataScreen extends StatelessWidget {
-  const UploadVideoDataScreen({Key? key}) : super(key: key);
+  const UploadVideoDataScreen({Key? key, required this.videoBytes})
+      : super(key: key);
+
+  final List<int> videoBytes;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[200],
-      body: const Center(
+      body: Center(
         child: SizedBox(
           width: 400,
           child: Card(
-            child: UploadVideoDataForm(),
+            child: UploadVideoDataForm(
+              videoBytes: videoBytes,
+            ),
           ),
         ),
       ),
@@ -27,7 +31,10 @@ class UploadVideoDataScreen extends StatelessWidget {
 }
 
 class UploadVideoDataForm extends StatefulWidget {
-  const UploadVideoDataForm({Key? key}) : super(key: key);
+  const UploadVideoDataForm({Key? key, required this.videoBytes})
+      : super(key: key);
+
+  final List<int> videoBytes;
 
   @override
   _UploadVideoDataFormState createState() => _UploadVideoDataFormState();
@@ -38,10 +45,12 @@ class _UploadVideoDataFormState extends State<UploadVideoDataForm> {
   final _postDescriptionTextController = TextEditingController();
 
   Uint8List? thumbnailPreview;
-  String? thumbnailName;
+  String? thumbnailName = "halloname";
   bool isLoading = false;
 
   double _formProgress = 0;
+
+  FilePickerResult? result;
 
   void _updateFormProgress() {
     var progress = 0.0;
@@ -59,75 +68,6 @@ class _UploadVideoDataFormState extends State<UploadVideoDataForm> {
     setState(() {
       _formProgress = progress;
     });
-  }
-
-  Future<void> _uploadPost(
-    String postTitle,
-    String postDescription,
-    String postSubchannelName,
-    List<int> thumbnail,
-    //List<int> video,
-  ) async {
-    var url = Uri.parse('http://localhost:3000/post/uploadPostWithData');
-
-    var request = http.MultipartRequest('POST', url);
-
-    request.fields['postTitle'] = postTitle;
-    request.fields['postDescription'] = postTitle;
-    request.fields['postSubchannelName'] = postSubchannelName;
-
-    request.files.add(http.MultipartFile.fromBytes('picture', thumbnail,
-        filename: "testname"));
-    //request.files.add(http.MultipartFile.fromBytes('video', video));
-
-    var response = await request.send();
-    if (response.statusCode == 200) {
-      print('Uploaded!');
-    } else {
-      print('Upload Error!');
-    }
-  }
-
-  Future<void> _uploadThumbnail() async {
-    setState(() {
-      isLoading = true;
-    });
-    final result = await FilePicker.platform
-        .pickFiles(type: FileType.image, allowMultiple: false);
-
-    if (result!.files.first != null) {
-      var fileBytes = result.files.first.bytes;
-      var fileName = result.files.first.name;
-      thumbnailName = fileName.split("/").last;
-
-      image.Image? raw = image.decodeImage(List.from(fileBytes!));
-
-      //print(String.fromCharCodes(fileBytes));
-      print("FileName: " + fileName);
-
-      if (raw!.width != 1280 && raw.height != 720) {
-        print("Image not 1280x720");
-        image.Image? resized = image.copyResize(raw, width: 1280, height: 720);
-        setState(() {
-          thumbnailPreview = Uint8List.fromList(image.encodePng(resized));
-          isLoading = false;
-        });
-      } else {
-        print("Image is 1280x720");
-        setState(() {
-          thumbnailPreview = Uint8List.fromList(image.encodePng(raw));
-          isLoading = false;
-        });
-      }
-
-      // upload file
-      // await FirebaseStorage.instance.ref('uploads/$fileName').putData(fileBytes);
-
-      //Navigator.push(context,MaterialPageRoute(builder: (context) => const UploadVideoDataScreen()),);
-    }
-
-    isLoading = false;
-    print("weiter");
   }
 
   @override
@@ -175,11 +115,17 @@ class _UploadVideoDataFormState extends State<UploadVideoDataForm> {
                   shape: MaterialStateProperty.all(RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30.0))),
                 ),
-                // onPressed: () => Navigator.push(
-                //         context,
-                //         MaterialPageRoute(builder: (context) => const UploadVideoDataScreen()),
-                //       ),
-                onPressed: () => _uploadThumbnail(),
+                onPressed: () async {
+                  result = await FilePicker.platform
+                      .pickFiles(type: FileType.image, allowMultiple: false);
+
+                  setState(() {
+                    thumbnailPreview = result!.files.first.bytes;
+                  });
+
+                  print("testprint1");
+                  //_processThumbnail(result);
+                },
                 child: const Text("Choose Thumbnail"),
               ),
             ),
@@ -204,12 +150,19 @@ class _UploadVideoDataFormState extends State<UploadVideoDataForm> {
                     : Colors.blue;
               }),
             ),
-            onPressed: (_formProgress >= 0)
-                ? () => _uploadPost(
-                    _postTitleTextController.text,
-                    _postTitleTextController.text,
-                    "izgut",
-                    List.from(thumbnailPreview!))
+            onPressed: (_formProgress >= 0 && result != null)
+                ? () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => ProcessAndSendScreen(
+                                postTitle: _postTitleTextController.text,
+                                postDescription:
+                                    _postDescriptionTextController.text,
+                                postSubchannelName: "izgut",
+                                thumbnail: result,
+                                video: widget.videoBytes,
+                              )),
+                    )
                 : null,
             child: isLoading
                 ? const Text('Wait for Thumbnail to be processed')
