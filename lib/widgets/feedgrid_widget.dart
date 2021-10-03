@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:testsite/widgets/video_preview_widget.dart';
+import 'package:http/http.dart' as http;
 
 class FeedGridScreen extends StatelessWidget {
   @override
@@ -7,12 +10,11 @@ class FeedGridScreen extends StatelessWidget {
     return Container(
       color: Colors.grey[200],
       child: Align(
-        alignment: Alignment.topCenter,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(150, 10, 150, 0),
-          child: FeedGrid(),
-        )
-      ),
+          alignment: Alignment.topCenter,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(150, 10, 150, 0),
+            child: FeedGrid(),
+          )),
     );
   }
 }
@@ -23,22 +25,54 @@ class FeedGrid extends StatefulWidget {
 }
 
 class _FeedGridState extends State<FeedGrid> {
+  List<int> postIds = <int>[];
 
   //https://picsum.photos/1280/720
-  List dataList = <int>[];
+  List<int> dataList = <int>[];
   bool isLoading = false;
   int pageCount = 1;
+  //int pageCount = 0;
   late ScrollController _scrollController;
+
+  //Get PostIds List
+  Future<void> fetchPostIds() async {
+    final response =
+        await http.get(Uri.parse('http://localhost:3000/post/getPostIds'));
+
+    if (response.statusCode == 200) {
+      //List<int> _postIds = <int>[];
+      // If the call to the server was successful, parse the JSON
+      List<dynamic> values = <dynamic>[];
+      values = json.decode(response.body);
+      if (values.isNotEmpty) {
+        for (int i = 0; i < values.length; i++) {
+          if (values[i] != null) {
+            Map<String, dynamic> map = values[i];
+            postIds.add(map['postId']);
+            print('Id-------${map['postId']}');
+          }
+        }
+      }
+      print(postIds);
+      //return postIds;
+    } else {
+      // If that call was not successful, throw an error.
+      throw Exception('Failed to load post');
+    }
+  }
 
   @override
   void initState() {
     super.initState();
 
-    ////LOADING FIRST  DATA
-    addItemIntoLisT(1);
+    fetchPostIds().then((value) {
+      ////LOADING FIRST  DATA
+      addItemIntoLisT(1);
+    });
 
     _scrollController = ScrollController(initialScrollOffset: 5.0)
       ..addListener(_scrollListener);
+    //print(postIds);
   }
 
   @override
@@ -55,20 +89,16 @@ class _FeedGridState extends State<FeedGrid> {
       mainAxisSpacing: 10.0,
       crossAxisSpacing: 10.0,
       children: dataList.map((value) {
-        return VideoPreview(thumbnailPath: value.toString(),);
+        print("In Preview");
+        return VideoPreview(
+          postId: value,
+        );
       }).toList(),
     );
   }
 
-
   //// ADDING THE SCROLL LISTINER
   _scrollListener() {
-
-    print("Wert 1: " + (_scrollController.offset >=
-            _scrollController.position.maxScrollExtent).toString());
-
-    print("Wert 2: " + (!_scrollController.position.outOfRange).toString());
-
     if (_scrollController.offset >=
             _scrollController.position.maxScrollExtent &&
         !_scrollController.position.outOfRange) {
@@ -89,8 +119,17 @@ class _FeedGridState extends State<FeedGrid> {
 
   ////ADDING DATA INTO ARRAYLIST
   void addItemIntoLisT(var pageCount) {
+    print("test");
     for (int i = (pageCount * 10) - 10; i < pageCount * 10; i++) {
-      dataList.add(i);
+      if (postIds.length > i) {
+        dataList.add(postIds[i]);
+      }
+      print(i);
+      // try {
+      //   dataList.add(postIds[i]);
+      // } catch (error) {
+      //   print('run out of Ids master');
+      // }
       isLoading = false;
     }
   }
@@ -100,6 +139,4 @@ class _FeedGridState extends State<FeedGrid> {
     _scrollController.dispose();
     super.dispose();
   }
-
-
 }

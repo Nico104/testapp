@@ -1,33 +1,72 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
-class VideoPreview extends StatelessWidget {
+class VideoPreview extends StatefulWidget {
+  final int postId;
 
-  final String thumbnailPath;
+  const VideoPreview({Key? key, required this.postId}) : super(key: key);
 
-  const VideoPreview({Key? key, 
-    required this.thumbnailPath
-  }) : super(key: key);
+  @override
+  State<VideoPreview> createState() => _VideoPreviewState();
+}
+
+class _VideoPreviewState extends State<VideoPreview> {
+  //Get PostPreview Data by Id
+  Future<Map<String, dynamic>> fetchPostPreviewData(int id) async {
+    print("In Preview 2");
+    final response = await http
+        .get(Uri.parse('http://localhost:3000/post/getPostPreviewData/$id'));
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> map = json.decode(response.body);
+      if (map.isNotEmpty) {
+        return map;
+      } else {
+        throw Exception('Failed to load post');
+      }
+    } else {
+      // If that call was not successful, throw an error.
+      throw Exception('Failed to load post');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return FutureBuilder(
+        future: fetchPostPreviewData(widget.postId),
+        builder: (BuildContext context,
+            AsyncSnapshot<Map<String, dynamic>> snapshot) {
+          if (snapshot.hasData) {
+            return Card(
               clipBehavior: Clip.antiAliasWithSaveLayer,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(8.0),
               ),
-              //alignment: Alignment.center,
-              //height: MediaQuery.of(context).size.height * 0.2,
-              //margin: const EdgeInsets.only(left: 10.0, right: 10.0),
-              // decoration: BoxDecoration(
-              //   border: Border.all(color: Colors.black),
-              // ),
               color: Colors.pinkAccent,
               child: Column(
                 children: [
-                  Image.network("https://picsum.photos/1280/720"),
-                  Text("Item ${thumbnailPath}"),
+                  Image.network(
+                      "http://localhost:3000/${snapshot.data!['postTumbnailPath']}"),
+                  Text(snapshot.data!['postTitle']),
                 ],
               ),
             );
+          } else {
+            return Card(
+                clipBehavior: Clip.antiAliasWithSaveLayer,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8.0),
+                ),
+                color: Colors.pinkAccent,
+                child: const Text("loading"));
+          }
+        });
   }
 }
